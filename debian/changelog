@@ -1,0 +1,215 @@
+nose2 (0.9.2-1) unstable; urgency=medium
+
+  * New upstream release 0.9.2
+  * Drop Barry Warsaw from maintainers as he retired. Thanks Barry for your
+    work!
+  * d/control:
+    - Bump debhelper-compat to version 13
+    - Bump Standards-Version to 4.5.0
+  * Python3 is 3.8, update the name ov the nose2 manpage.
+
+ -- Pierre-Elliott Bécue <peb@debian.org>  Tue, 08 Sep 2020 22:35:06 +0200
+
+nose2 (0.9.1-3) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.1.
+
+  [ Sandro Tosi ]
+  * Drop python2 support; Closes: #937157
+
+ -- Sandro Tosi <morph@debian.org>  Tue, 12 Nov 2019 18:05:59 -0500
+
+nose2 (0.9.1-2) unstable; urgency=medium
+
+  * d/p/0002:
+    - Drops specific version requirement on mock for the Python2 version.
+      (Closes: #934116)
+  * d/control:
+    - Drops the dependency on python3-mock for the Python3 package.
+
+ -- Pierre-Elliott Bécue <peb@debian.org>  Sun, 18 Aug 2019 00:09:36 +0200
+
+nose2 (0.9.1-1) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Use debhelper-compat instead of debian/compat.
+  * Bump Standards-Version to 4.4.0.
+
+  [ Pierre-Elliott Bécue ]
+  * New upstream release 0.9.1
+  * Bump dh-compatibility level to 12
+  * Add autopkgtest tests.
+
+ -- Pierre-Elliott Bécue <peb@debian.org>  Mon, 22 Jul 2019 22:11:19 +0200
+
+nose2 (0.8.0-2) unstable; urgency=medium
+
+  * Use 'python3 -m sphinx' instead of sphinx-build for building docs
+
+ -- Pierre-Elliott Bécue <peb@debian.org>  Wed, 09 Jan 2019 08:45:24 +0100
+
+nose2 (0.8.0-1) unstable; urgency=medium
+
+  * New upstream release 0.8.0.
+  * d/control:
+    - Drop ancient X-Python3?-Version fields
+    - Bump Standards-Version to 4.3.0.
+    - Replace my crans address by my debian one
+  * d/rules:
+    - Current python3 release is python3.7, drop 3.6.3
+  * d/python3-nose2.manpages:
+    - Current python3 release is python3.7, drop 3.6.3
+
+ -- Pierre-Elliott Bécue <peb@debian.org>  Wed, 09 Jan 2019 01:17:47 +0100
+
+nose2 (0.7.4-2) unstable; urgency=medium
+
+  * wrap-and-sort
+  * d/control:
+    - Add missing dependency on python{,3}-mock (Closes: #896804)
+    - Bump Standards-Version to 4.1.4. No change required.
+
+ -- Pierre-Elliott Bécue <becue@crans.org>  Wed, 25 Apr 2018 17:14:31 +0200
+
+nose2 (0.7.4-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update d/patches: 000[2-4] applied upstream.
+
+ -- Pierre-Elliott Bécue <becue@crans.org>  Fri, 23 Feb 2018 09:52:49 +0100
+
+nose2 (0.7.3-3) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+
+  [ Pierre-Elliott Bécue ]
+  * Add d/p/0004 to fix an infinite recursion issue that occurred when loading
+    tests from a zipped eggfile. (Closes: #889843)
+
+ -- Pierre-Elliott Bécue <becue@crans.org>  Tue, 13 Feb 2018 19:48:25 +0100
+
+nose2 (0.7.3-2) unstable; urgency=medium
+
+  * Get rid of git-dpm tool, switch to gbp
+  * Add d/p/0002 to fix reproducibility issues. The way to do so is by sorting
+    a plugin set before they're loaded. This loading occurs for all calls to
+    nose2, including -h option. The fact that the plugin list was in a set did
+    introduce some non-deterministic order in the manpage options.
+  * Add d/p/0003 to fix a documentation issue in docs/plugins/mp.py.
+    The MultiProcess.procs attribute had a default to
+    multiprocessing.cpu_count(). As the defaults are fetched for docs
+    building, this introduces a reproducibility issue and potential others
+    weird things. This patch is to set a default value to 0 in a _procs
+    variable, and then rely on a getter/setter to get/set "procs" at an
+    appropriate value if 0 is kept (ie no configuration or configuration set
+    to 0).
+  * d/python-nose2-doc.links:
+    - Fix the _sources link
+  * d/copyright:
+    - Copyright format url via HTTPS instead of HTTP
+
+ -- Pierre-Elliott Bécue <becue@crans.org>  Tue, 23 Jan 2018 22:54:06 +0100
+
+nose2 (0.7.3-1) unstable; urgency=medium
+
+  [ Barry Warsaw ]
+  * d/control: Put DPMT in Maintainers and move myself to Uploaders.
+
+  [ Pierre-Elliott Bécue ]
+  * New upstream release: 0.7.3
+  * Add myself to uploaders
+  * d/control:
+    - Update dependency list
+    - Support for python2 up to 2.6 dropped and python3 up to 3.3 dropped.
+    - Force dependency on debhelper >= 11
+    - Rely on python3-sphinx instead of python-sphinx
+    - Add a Testsuite
+    - Use Sphinx RTD theme
+    - Bump Standards-Version to 4.1.3
+    - Add real extended description for the packages
+    - Remove python3-nose2 suggesting python-nose2
+    - Remove python-nose2 suggesting python3-nose2
+  * d/patches/0001: clean privacy breach by removing images from README.rst
+  * d/rules:
+    - Clean changelog reading calls and use dpkg's pkg-info makefile include
+      to provide adapted variables.
+    - Change the cp call for nose2-3 as python3 version is 3.6
+  * d/python3-nose2.manpages: take into account d/rules changes
+  * d/copyright:
+    - nose2/backports/ordereddict.py no longer exists.
+    - Add myself and update the years for debian/*
+  * d/compat: bump to 11
+  * d/python-nose2-doc.links: add a clean link in the doc from html/_sources
+    to rst.
+  * d/python-nose2-doc.doc-base: add a doc-base reference
+
+ -- Pierre-Elliott Bécue <becue@crans.org>  Mon, 08 Jan 2018 23:19:36 +0100
+
+nose2 (0.6.5-2) unstable; urgency=medium
+
+  * d/rules: Set $SOURCE_DATE_EPOCH to the d/changelog Timestamp for
+    reproducible builds of the manpage.
+  * d/watch: Use https URL.
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 26 Sep 2016 11:19:55 -0400
+
+nose2 (0.6.5-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/control:
+    - Bump Standards-Version with no other changes needed.
+    - Update descriptions to avoid lintian warnings.
+  * d/rules, python3-nose2.manpages: Manpage for Python 3.5, not 3.4.
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 13 Jul 2016 11:20:35 -0400
+
+nose2 (0.6.4-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 16 Mar 2016 16:48:20 -0400
+
+nose2 (0.6.3-1) unstable; urgency=medium
+
+  * New upstream version.
+  * Fixes FTBFS, RC bug, closes: #812710.
+
+ -- Brian May <bam@debian.org>  Wed, 02 Mar 2016 10:42:30 +1100
+
+nose2 (0.5.0-2) unstable; urgency=medium
+
+  * d/watch: Use the pypi.debian.net redirector.
+
+ -- Barry Warsaw <barry@debian.org>  Thu, 04 Jun 2015 13:58:13 -0400
+
+nose2 (0.5.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/control:
+    - Bumped Standards-Version to 3.9.6 with no other changes necessary.
+    - Removed unused build dependency on python-tox.
+    - Added Vcs-* headers.
+    - Use PyPI as the Homepage.
+  * d/rules:
+    - Now that PYBUILD_NAME works, use it.
+    - Added dh_installman override to build manpages via help2man.
+  * d/patches:
+    - doc-support.patch obsolete; removed.
+    - requirements.patch: Refreshed.
+  * d/*.manpages: Added.
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 15 Oct 2014 14:55:45 -0400
+
+nose2 (0.4.7-2) unstable; urgency=low
+
+  * debian/copyright: Describe Python-derived files.
+
+ -- Barry Warsaw <barry@debian.org>  Mon, 09 Sep 2013 22:14:45 -0400
+
+nose2 (0.4.7-1) unstable; urgency=low
+
+  * Initial release. (Closes: #656589)
+
+ -- Barry Warsaw <barry@debian.org>  Wed, 28 Aug 2013 16:13:08 -0400

@@ -1,0 +1,3 @@
+Test-Command: python3 -m nose2.__main__ -v
+Depends: @,
+Restrictions: allow-stderr

@@ -1,0 +1,21 @@
+From: =?utf-8?q?Pierre-Elliott_B=C3=A9cue?= <peb@debian.org>
+Date: Sun, 18 Aug 2019 00:04:50 +0200
+Subject: Drop the specific version requirement on mock
+
+---
+ setup.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/setup.py b/setup.py
+index 992d2a4..b5c5a48 100644
+--- a/setup.py
++++ b/setup.py
+@@ -32,7 +32,7 @@ setup(
+         # mock on py2, py3.4 and py3.5
+         # not just py2: py3 versions of mock don't all have the same
+         # interface and this can cause issues
+-        'mock==2.0.0;python_version<"3.6"',
++        'mock;python_version<"3.6"',
+     ],
+     extras_require={
+         "coverage_plugin": ["coverage>=4.4.1"],

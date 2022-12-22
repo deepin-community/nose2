@@ -1,0 +1,10 @@
+Document: python-nose2
+Title: Python2/3 Nose2 documentation
+Author: Jason Pellerin, Augie Fackler, Arve Knudsen, Wouter Overmeire, Omer
+ Katz, Ilya Kurnosov, Philip Thiem, Aloys Baillet
+Abstract: This manual describes how to use Nose2 functionalities
+Section: Programming/Python
+
+Format: HTML
+Index: /usr/share/doc/python-nose2/html/index.html
+Files: /usr/share/doc/python-nose2/html/*

@@ -14,30 +14,26 @@ talk to the user.
 
 """
 
+import io
 import sys
-import traceback
-
-from six import StringIO
 
 from nose2 import events
 from nose2.util import ln
 
-
 __unittest = True
 
 
-class _Buffer(object):
-
+class _Buffer:
     def __init__(self, stream):
         self._stream = stream
-        self._buffer = StringIO()
+        self._buffer = io.StringIO()
 
     def fileno(self):
         return self._stream.fileno()
 
     def __getattr__(self, attr):
         # this happens on unpickling
-        if attr == '_buffer':
+        if attr == "_buffer":
             raise AttributeError("No _buffer yet")
         return getattr(self._buffer, attr)
 
@@ -57,12 +53,13 @@ class _Buffer(object):
 class OutputBufferPlugin(events.Plugin):
 
     """Buffer output during test execution"""
-    commandLineSwitch = ('B', 'output-buffer', 'Enable output buffer')
-    configSection = 'output-buffer'
+
+    commandLineSwitch = ("B", "output-buffer", "Enable output buffer")
+    configSection = "output-buffer"
 
     def __init__(self):
-        self.captureStdout = self.config.as_bool('stdout', default=True)
-        self.captureStderr = self.config.as_bool('stderr', default=False)
+        self.captureStdout = self.config.as_bool("stdout", default=True)
+        self.captureStderr = self.config.as_bool("stderr", default=False)
         self.bufStdout = self.bufStderr = None
         self.realStdout = sys.__stdout__
         self.realStderr = sys.__stderr__
@@ -86,52 +83,31 @@ class OutputBufferPlugin(events.Plugin):
         self._restore()
 
     def _get_stream_unicode_save(self, stream, buffer):
-        buf = ''
-        stream_buffer_exc_info = None
-        try:
-            buf = buffer.getvalue()
-        except (UnicodeError, UnicodeDecodeError):
-            # python2's StringIO.StringIO [1] class has this warning:
-            #
-            #     The StringIO object can accept either Unicode or 8-bit strings,
-            #     but mixing the two may take some care. If both are used, 8-bit
-            #     strings that cannot be interpreted as 7-bit ASCII (that use the
-            #     8th bit) will cause a UnicodeError to be raised when getvalue()
-            #     is called.
-            #
-            # This exception handler is a protection against crashes
-            # caused by this exception (such as [2] in the original
-            # nose application). Capturing the exception info allows us
-            # to display it back to the user.
-            #
-            # [1] <https://github.com/python/cpython/blob/2.7/Lib/StringIO.py#L258>
-            # [2] <https://github.com/nose-devs/nose/issues/816>
-            stream_buffer_exc_info = sys.exc_info()
-        extraDetail = []
-        extraDetail.append(
-            ln('>> begin captured %s <<' % stream))
-        extraDetail.append(buf)
-        extraDetail.append(ln('>> end captured %s <<' % stream))
-        if stream_buffer_exc_info:
-            extraDetail.append('OUTPUT ERROR: Could not get captured %s output.' % stream)
-            extraDetail.append("The test might've printed both 'unicode' strings and non-ASCII 8-bit 'str' strings.")
-            extraDetail.append(ln('>> begin captured %s exception traceback <<' % stream))
-            extraDetail.append(''.join(traceback.format_exception(*stream_buffer_exc_info)))
-            extraDetail.append(ln('>> end captured %s exception traceback <<' % stream))
-        return "\n".join(extraDetail)
+        buf = buffer.getvalue()
+        return "\n".join(
+            [
+                ln(f">> begin captured {stream} <<"),
+                buf,
+                ln(f">> end captured {stream} <<"),
+            ]
+        )
 
     def setTestOutcome(self, event):
         """Attach buffer(s) to event.metadata"""
         if self._disable:
             return
-        if self.captureStdout and 'stdout' not in event.metadata:
-            event.metadata['stdout'] = self._get_stream_unicode_save('stdout', self.bufStdout)
-        if self.captureStderr and 'stderr' not in event.metadata:
-            event.metadata['stderr'] = self._get_stream_unicode_save('stderr', self.bufStderr)
+        if self.captureStdout and "stdout" not in event.metadata:
+            event.metadata["stdout"] = self._get_stream_unicode_save(
+                "stdout", self.bufStdout
+            )
+        if self.captureStderr and "stderr" not in event.metadata:
+            event.metadata["stderr"] = self._get_stream_unicode_save(
+                "stderr", self.bufStderr
+            )
 
     def outcomeDetail(self, event):
         """Add buffered output to event.extraDetail"""
-        for stream in ('stdout', 'stderr'):
+        for stream in ("stdout", "stderr"):
             if stream in event.outcomeEvent.metadata:
                 b = event.outcomeEvent.metadata[stream]
                 if b:

@@ -1,8 +1,8 @@
 AUTHORS
+LICENSE
 MANIFEST.in
 README.rst
-license.txt
-setup.cfg
+pyproject.toml
 setup.py
 tox.ini
 unittest.cfg
@@ -63,7 +63,6 @@ docs/plugins/testclasses.rst
 docs/plugins/testid.rst
 nose2/__init__.py
 nose2/__main__.py
-nose2/_version.py
 nose2/collector.py
 nose2/config.py
 nose2/events.py
@@ -133,6 +132,7 @@ nose2/tests/functional/test_mp_plugin.py
 nose2/tests/functional/test_prettyassert.py
 nose2/tests/functional/test_printhooks_plugin.py
 nose2/tests/functional/test_session.py
+nose2/tests/functional/test_subtests.py
 nose2/tests/functional/test_such_dsl.py
 nose2/tests/functional/test_util.py
 nose2/tests/functional/test_verbosity.py
@@ -240,10 +240,13 @@ nose2/tests/functional/support/scenario/pretty_asserts/simple_global/test_simple
 nose2/tests/functional/support/scenario/pretty_asserts/unittest_assertion/__init__.py
 nose2/tests/functional/support/scenario/pretty_asserts/unittest_assertion/test_prettyassert_unittestassertion.py
 nose2/tests/functional/support/scenario/slow/test_slow.py
+nose2/tests/functional/support/scenario/subtests/test_subtests.py
 nose2/tests/functional/support/scenario/such_with_params/such_with_params.py
 nose2/tests/functional/support/scenario/test_class_fail/test_class_fail.py
 nose2/tests/functional/support/scenario/test_classes/test_classes.py
 nose2/tests/functional/support/scenario/test_classes/test_fixtures.py
+nose2/tests/functional/support/scenario/test_classes_mp/test_classes_mp.py
+nose2/tests/functional/support/scenario/test_classes_mp/test_fixtures_mp.py
 nose2/tests/functional/support/scenario/test_coverage_config/coveragerc/.coveragerc
 nose2/tests/functional/support/scenario/test_coverage_config/coveragerc/test_coveragerc.py
 nose2/tests/functional/support/scenario/test_coverage_config/coveragerc/covered_lib_coveragerc/__init__.py

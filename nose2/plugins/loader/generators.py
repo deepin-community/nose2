@@ -25,6 +25,7 @@ generated case you want to execute.
 # Rights Reserved. See: http://docs.python.org/license.html
 
 import functools
+import inspect
 import logging
 import sys
 import types
@@ -33,7 +34,6 @@ import unittest
 from nose2 import exceptions, util
 from nose2.events import Plugin
 
-
 log = logging.getLogger(__name__)
 __unittest = True
 
@@ -41,8 +41,9 @@ __unittest = True
 class Generators(Plugin):
 
     """Loader plugin that loads generator tests"""
+
     alwaysOn = True
-    configSection = 'generators'
+    configSection = "generators"
 
     def registerInSubprocess(self, event):
         event.pluginClasses.append(self.__class__)
@@ -60,41 +61,39 @@ class Generators(Plugin):
 
     def loadTestsFromTestCase(self, event):
         """Load generator tests from test case"""
-        log.debug('loadTestsFromTestCase %s', event.testCase)
+        log.debug("loadTestsFromTestCase %s", event.testCase)
         testCaseClass = event.testCase
-        for name in dir(testCaseClass):
-            method = getattr(testCaseClass, name)
-            if (name.startswith(self.session.testMethodPrefix) and
-                hasattr(getattr(testCaseClass, name), '__call__') and
-                util.isgenerator(method)):
-                instance = testCaseClass(name)
-                event.extraTests.extend(
-                    self._testsFromGenerator(
-                        event, name, method(instance), testCaseClass)
-                )
+        for name, method in util.iter_attrs(testCaseClass):
+            if not inspect.isgeneratorfunction(method):
+                continue
+            if not name.startswith(self.session.testMethodPrefix):
+                continue
+            instance = testCaseClass(name)
+            event.extraTests.extend(
+                self._testsFromGenerator(event, name, method(instance), testCaseClass)
+            )
 
     def loadTestsFromTestClass(self, event):
         testCaseClass = event.testCase
-        for name in dir(testCaseClass):
-            method = getattr(testCaseClass, name)
-            if (name.startswith(self.session.testMethodPrefix) and
-                hasattr(getattr(testCaseClass, name), '__call__') and
-                util.isgenerator(method)):
-                instance = testCaseClass()
-                event.extraTests.extend(
-                    self._testsFromGeneratorMethod(
-                        event, name, method, instance)
-                )
+        for name, method in util.iter_attrs(testCaseClass):
+            if not inspect.isgeneratorfunction(method):
+                continue
+            if not name.startswith(self.session.testMethodPrefix):
+                continue
+            instance = testCaseClass()
+            event.extraTests.extend(
+                self._testsFromGeneratorMethod(event, name, method, instance)
+            )
 
     def getTestCaseNames(self, event):
         """Get generator test case names from test case class"""
-        log.debug('getTestCaseNames %s', event.testCase)
-        names = filter(event.isTestMethod, dir(event.testCase))
-        klass = event.testCase
-        for name in names:
-            method = getattr(klass, name)
-            if util.isgenerator(method):
-                event.excludedNames.append(name)
+        log.debug("getTestCaseNames %s", event.testCase)
+        for name, method in util.iter_attrs(event.testCase):
+            if not inspect.isgeneratorfunction(method):
+                continue
+            if not event.isTestMethod(name):
+                continue
+            event.excludedNames.append(name)
 
     def getTestMethodNames(self, event):
         return self.getTestCaseNames(event)
@@ -113,32 +112,32 @@ class Generators(Plugin):
             return
 
         parent, obj, name, index = result
-        if not util.isgenerator(obj):
+        if not inspect.isgeneratorfunction(obj):
             return
 
-        if (index is None and not
-            isinstance(parent, type) and not
-            isinstance(obj, types.FunctionType)):
+        if (
+            index is None
+            and not isinstance(parent, type)
+            and not isinstance(obj, types.FunctionType)
+        ):
             log.debug("Don't know how to load generator tests from %s", obj)
             return
 
-        if (parent and
-            isinstance(parent, type) and
-            issubclass(parent, unittest.TestCase)):
+        if (
+            parent
+            and isinstance(parent, type)
+            and issubclass(parent, unittest.TestCase)
+        ):
             # generator method in test case
             instance = parent(obj.__name__)
             tests = list(
-                self._testsFromGenerator(
-                    event, obj.__name__, obj(instance), parent)
+                self._testsFromGenerator(event, obj.__name__, obj(instance), parent)
             )
-        elif (parent and
-              isinstance(parent, type)):
-              # generator method in test class
+        elif parent and isinstance(parent, type):
+            # generator method in test class
             method = obj
             instance = parent()
-            tests = list(
-                self._testsFromGeneratorMethod(event, name, method, instance)
-            )
+            tests = list(self._testsFromGeneratorMethod(event, name, method, instance))
         else:
             # generator func
             tests = list(self._testsFromGeneratorFunc(event, obj))
@@ -159,11 +158,12 @@ class Generators(Plugin):
         module = event.module
 
         def is_test(obj):
-            return (obj.__name__.startswith(self.session.testMethodPrefix)
-                    and util.isgenerator(obj))
+            return obj.__name__.startswith(
+                self.session.testMethodPrefix
+            ) and inspect.isgeneratorfunction(obj)
+
         tests = []
-        for name in dir(module):
-            obj = getattr(module, name)
+        for _, obj in util.iter_attrs(module):
             if isinstance(obj, types.FunctionType) and is_test(obj):
                 tests.extend(self._testsFromGeneratorFunc(event, obj))
         event.extraTests.extend(tests)
@@ -178,61 +178,63 @@ class Generators(Plugin):
 
                 def method(func=func, args=args):
                     return func(*args)
+
                 method = functools.update_wrapper(method, func)
                 setattr(instance, method_name, method)
                 yield instance
         except Exception as e:
-            test_name = '%s.%s.%s' % (testCaseClass.__module__,
-                                      testCaseClass.__name__,
-                                      name)
+            test_name = f"{testCaseClass.__module__}.{testCaseClass.__name__}.{name}"
             yield event.loader.failedLoadTests(test_name, e)
 
     def _testsFromGeneratorFunc(self, event, obj):
         extras = list(obj())
-        name = '%s.%s' % (obj.__module__, obj.__name__)
+        name = f"{obj.__module__}.{obj.__name__}"
         args = {}
-        setUp = getattr(obj, 'setUp', None)
-        tearDown = getattr(obj, 'tearDown', None)
+        setUp = getattr(obj, "setUp", None)
+        tearDown = getattr(obj, "tearDown", None)
         if setUp is not None:
-            args['setUp'] = setUp
+            args["setUp"] = setUp
         if tearDown is not None:
-            args['tearDown'] = tearDown
+            args["tearDown"] = tearDown
 
         def createTest(name):
-            return util.transplant_class(
-                GeneratorFunctionCase, obj.__module__)(name, **args)
-        for test in self._testsFromGenerator(event, name, extras, createTest):
-            yield test
+            return util.transplant_class(GeneratorFunctionCase, obj.__module__)(
+                name, **args
+            )
+
+        yield from self._testsFromGenerator(event, name, extras, createTest)
 
     def _testsFromGeneratorMethod(self, event, name, method, instance):
         extras = list(method(instance))
-        name = "%s.%s.%s" % (instance.__class__.__module__,
-                             instance.__class__.__name__,
-                             method.__name__)
+        name = "{}.{}.{}".format(
+            instance.__class__.__module__,
+            instance.__class__.__name__,
+            method.__name__,
+        )
         args = {}
-        setUp = getattr(instance, 'setUp', None)
-        tearDown = getattr(instance, 'tearDown', None)
+        setUp = getattr(instance, "setUp", None)
+        tearDown = getattr(instance, "tearDown", None)
         if setUp is not None:
-            args['setUp'] = setUp
+            args["setUp"] = setUp
         if tearDown is not None:
-            args['tearDown'] = tearDown
+            args["tearDown"] = tearDown
 
         def createTest(name):
             return util.transplant_class(
-                GeneratorMethodCase(instance.__class__),
-                instance.__class__.__module__)(name, **args)
-        for test in self._testsFromGenerator(event, name, extras, createTest):
-            yield test
+                GeneratorMethodCase(instance.__class__), instance.__class__.__module__
+            )(name, **args)
+
+        yield from self._testsFromGenerator(event, name, extras, createTest)
 
 
 class GeneratorFunctionCase(unittest.FunctionTestCase):
-
     def __init__(self, name, **args):
         self._funcName = name
         unittest.FunctionTestCase.__init__(self, None, **args)
 
-    _testFunc = property(lambda self: getattr(self, self._funcName),
-                         lambda self, func: None)
+    _testFunc = property(
+        lambda self: getattr(self, self._funcName), lambda self, func: None
+    )
 
     def __repr__(self):
         return self._funcName
@@ -242,14 +244,18 @@ class GeneratorFunctionCase(unittest.FunctionTestCase):
 
 def GeneratorMethodCase(cls):
     class _GeneratorMethodCase(GeneratorFunctionCase):
+        if util.has_class_fixtures(cls):
 
-        @classmethod
-        def setUpClass(klass):
-            if hasattr(cls, 'setUpClass'):
-                cls.setUpClass()
+            @classmethod
+            def setUpClass(klass):
+                if hasattr(cls, "setUpClass"):
+                    cls.setUpClass()
 
-        @classmethod
-        def tearDownClass(klass):
-            if hasattr(cls, 'tearDownClass'):
-                cls.tearDownClass()
+            @classmethod
+            def tearDownClass(klass):
+                if hasattr(cls, "tearDownClass"):
+                    cls.tearDownClass()
+
+    # XXX retain original class name
+    _GeneratorMethodCase.__name__ = cls.__name__
     return _GeneratorMethodCase

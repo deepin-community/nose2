@@ -1,11 +1,12 @@
-import unittest
 import logging
-from .common import UniqueResource, NormalTest, NormalTestTwo
+import unittest
+
+from .common import NormalTest, NormalTestTwo, UniqueResource  # noqa: F401
+
 log = logging.getLogger(__name__)
 
 
-class Layer1(object):
-
+class Layer1:
     @classmethod
     def setUp(cls):
         log.info("Called setup in layer 1")
@@ -18,8 +19,7 @@ class Layer1(object):
         cls.unique_resource.unlock()
 
 
-class Layer2(object):
-
+class Layer2:
     @classmethod
     def setUp(cls):
         log.info("Called setup in layer 2")
@@ -33,7 +33,6 @@ class Layer2(object):
 
 
 class Layer3(Layer2):
-
     @classmethod
     def setUp(cls):
         log.info("Called setup in layer 3")
@@ -44,7 +43,6 @@ class Layer3(Layer2):
 
 
 class LayerTest1(unittest.TestCase):
-
     layer = Layer1
 
     def test(self):
@@ -52,7 +50,6 @@ class LayerTest1(unittest.TestCase):
 
 
 class LayerTest2(unittest.TestCase):
-
     layer = Layer2
 
     def test(self):
@@ -60,7 +57,6 @@ class LayerTest2(unittest.TestCase):
 
 
 class LayerTest3(unittest.TestCase):
-
     layer = Layer2
 
     def test(self):

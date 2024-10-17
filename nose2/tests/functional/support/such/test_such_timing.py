@@ -1,4 +1,5 @@
 import time
+
 from nose2.tools import such
 
 
@@ -11,8 +12,7 @@ def slow_blocking_init():
     return True
 
 
-class Layer1(object):
-
+class Layer1:
     description = "Layer1 description"
 
     @classmethod
@@ -21,8 +21,7 @@ class Layer1(object):
         it.obj = False
 
 
-class Layer2(object):
-
+class Layer2:
     description = "Layer2 description"
 
     @classmethod
@@ -30,21 +29,19 @@ class Layer2(object):
         it.obj = slow_blocking_init()
 
 
-with such.A('system with a fast initial setup layer') as it:
-
+with such.A("system with a fast initial setup layer") as it:
     it.uses(Layer1)
 
-    @it.should('not have obj initialized')
+    @it.should("not have obj initialized")
     def test():
         assert not it.obj
 
-
-    with it.having('a second slow setup layer'):
-
+    with it.having("a second slow setup layer"):
         it.uses(Layer2)
 
-        @it.should('have obj initialized')
-        def test():
+        @it.should("have obj initialized")
+        def test2():
             assert it.obj
+
 
 it.createTests(globals())

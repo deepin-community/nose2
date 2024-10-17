@@ -1,2 +1,4 @@
 0001-removes_external_images_from_readme_rst.patch
-0002-Drop-the-specific-version-requirement-on-mock.patch
+0002-Recover-nose2._version.__version__.patch
+0003-Avoid-setuptools-PackageDiscoveryError.patch
+0004-Python3.12.patch

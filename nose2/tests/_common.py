@@ -1,30 +1,31 @@
 """Common functionality."""
+import io
 import os.path
-import tempfile
+import platform
 import shutil
 import subprocess
 import sys
-import six
+import tempfile
 import unittest
 
 from nose2 import discover, util
 
-
 HERE = os.path.abspath(os.path.dirname(__file__))
-SUPPORT = os.path.join(HERE, 'functional', 'support')
+SUPPORT = os.path.join(HERE, "functional", "support")
 
 
 class TestCase(unittest.TestCase):
 
     """TestCase extension.
 
-    If the class variable ``_RUN_IN_TEMP`` is ``True`` (default: ``False``), tests will be
-    performed in a temporary directory, which is deleted afterwards.
+    If the class variable ``_RUN_IN_TEMP`` is ``True`` (default: ``False``), tests will
+    be performed in a temporary directory, which is deleted afterwards.
     """
+
     _RUN_IN_TEMP = False
 
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
 
         if self._RUN_IN_TEMP:
             self._orig_dir = os.getcwd()
@@ -34,7 +35,7 @@ class TestCase(unittest.TestCase):
             sys.path.insert(0, work_dir)
 
     def tearDown(self):
-        super(TestCase, self).tearDown()
+        super().tearDown()
 
         if self._RUN_IN_TEMP:
             os.chdir(self._orig_dir)
@@ -45,30 +46,24 @@ class TestCase(unittest.TestCase):
         In python 3.5, the unittest.TestCase.__str__() output changed.
         This makes it conform to previous version.
         """
-        if sys.version_info >= (3, 5):
-            test_module = self.__class__.__module__
-            test_class = self.__class__.__name__
-            test_method = self._testMethodName
-            return "%s (%s.%s)" % (test_method, test_module, test_class)
-        else:
-            return super(TestCase, self).__str__()
+        test_module = self.__class__.__module__
+        test_class = self.__class__.__name__
+        test_method = self._testMethodName
+        return f"{test_method} ({test_module}.{test_class})"
 
     def id(self):
         """
         In python 3.5, the unittest.TestCase.__id__() output changed.
         This makes it conform to previous version.
         """
-        if sys.version_info >= (3, 5):
-            test_module = self.__class__.__module__
-            test_class = self.__class__.__name__
-            test_method = self._testMethodName
-            return "%s.%s.%s" % (test_module, test_class, test_method)
-        else:
-            return super(TestCase, self).id()
+        test_module = self.__class__.__module__
+        test_class = self.__class__.__name__
+        test_method = self._testMethodName
+        return f"{test_module}.{test_class}.{test_method}"
 
 
 class FunctionalTestCase(unittest.TestCase):
-    tags = ['functional']
+    tags = ["functional"]
 
     def assertTestRunOutputMatches(self, proc, stdout=None, stderr=None):
         cmd_stdout, cmd_stderr = None, None
@@ -81,14 +76,10 @@ class FunctionalTestCase(unittest.TestCase):
         if cmd_stdout is None:
             cmd_stdout, cmd_stderr = proc.communicate()
             self._output[proc.pid] = cmd_stdout, cmd_stderr
-        # Python 2.7 needs this
-        # assertRegexpMatches() was renamed to assertRegex() in 3.2
-        testf = self.assertRegex if hasattr(self, 'assertRegex') \
-            else self.assertRegexpMatches
         if stdout:
-            testf(util.safe_decode(cmd_stdout), stdout)
+            self.assertRegex(util.safe_decode(cmd_stdout), stdout)
         if stderr:
-            testf(util.safe_decode(cmd_stderr), stderr)
+            self.assertRegex(util.safe_decode(cmd_stderr), stderr)
 
     def runIn(self, testdir, *args, **kw):
         return run_nose2(*args, cwd=testdir, **kw)
@@ -97,13 +88,13 @@ class FunctionalTestCase(unittest.TestCase):
         return run_module_as_main(testmodule, *args)
 
 
-class _FakeEventBase(object):
+class _FakeEventBase:
 
-    """Baseclass for fake :class:`~nose2.events.Event`\s."""
+    """Baseclass for fake :class:`~nose2.events.Event`s."""
 
     def __init__(self):
         self.handled = False
-        self.version = '0.1'
+        self.version = "0.1"
         self.metadata = {}
 
 
@@ -112,7 +103,7 @@ class FakeHandleFileEvent(_FakeEventBase):
     """Fake HandleFileEvent."""
 
     def __init__(self, name):
-        super(FakeHandleFileEvent, self).__init__()
+        super().__init__()
 
         self.loader = Stub()  # FIXME
         self.name = name
@@ -125,10 +116,11 @@ class FakeStartTestEvent(_FakeEventBase):
     """Fake :class:`~nose2.events.StartTestEvent`."""
 
     def __init__(self, test):
-        super(FakeStartTestEvent, self).__init__()
+        super().__init__()
         self.test = test
         self.result = test.defaultTestResult()
         import time
+
         self.startTime = time.time()
 
 
@@ -137,7 +129,7 @@ class FakeLoadFromNameEvent(_FakeEventBase):
     """Fake :class:`~nose2.events.LoadFromNameEvent`."""
 
     def __init__(self, name):
-        super(FakeLoadFromNameEvent, self).__init__()
+        super().__init__()
         self.name = name
 
 
@@ -146,7 +138,7 @@ class FakeLoadFromNamesEvent(_FakeEventBase):
     """Fake :class:`~nose2.events.LoadFromNamesEvent`."""
 
     def __init__(self, names):
-        super(FakeLoadFromNamesEvent, self).__init__()
+        super().__init__()
         self.names = names
 
 
@@ -154,9 +146,10 @@ class FakeStartTestRunEvent(_FakeEventBase):
 
     """Fake :class:`~nose2.events.StartTestRunEvent`"""
 
-    def __init__(self, runner=None, suite=None, result=None, startTime=None,
-                 executeTests=None):
-        super(FakeStartTestRunEvent, self).__init__()
+    def __init__(
+        self, runner=None, suite=None, result=None, startTime=None, executeTests=None
+    ):
+        super().__init__()
         self.suite = suite
         self.runner = runner
         self.result = result
@@ -164,7 +157,7 @@ class FakeStartTestRunEvent(_FakeEventBase):
         self.executeTests = executeTests
 
 
-class Stub(object):
+class Stub:
 
     """Stub object for use in tests"""
 
@@ -180,22 +173,24 @@ def support_file(*path_parts):
 
 
 def run_nose2(*nose2_args, **nose2_kwargs):
-    if 'cwd' in nose2_kwargs:
-        cwd = nose2_kwargs.pop('cwd')
+    if "cwd" in nose2_kwargs:
+        cwd = nose2_kwargs.pop("cwd")
         if not os.path.isabs(cwd):
-            nose2_kwargs['cwd'] = support_file(cwd)
+            nose2_kwargs["cwd"] = support_file(cwd)
     return NotReallyAProc(nose2_args, **nose2_kwargs)
 
 
 def run_module_as_main(test_module, *args):
     if not os.path.isabs(test_module):
         test_module = support_file(test_module)
-    return subprocess.Popen([sys.executable, test_module] + list(args),
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return subprocess.Popen(
+        [sys.executable, test_module] + list(args),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
 
-class NotReallyAProc(object):
-
+class NotReallyAProc:
     def __init__(self, args, cwd=None, **kwargs):
         self.args = args
         self.chdir = cwd
@@ -209,8 +204,8 @@ class NotReallyAProc(object):
         self.cwd = os.getcwd()
         if self.chdir:
             os.chdir(self.chdir)
-        self.stdout = sys.stdout = sys.__stdout__ = six.StringIO()
-        self.stderr = sys.stderr = sys.__stderr__ = six.StringIO()
+        self.stdout = sys.stdout = sys.__stdout__ = io.StringIO()
+        self.stderr = sys.stderr = sys.__stderr__ = io.StringIO()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -224,8 +219,8 @@ class NotReallyAProc(object):
         with self:
             try:
                 self.result = discover(
-                    argv=('nose2',) + self.args, exit=False,
-                    **self.kwargs)
+                    argv=("nose2",) + self.args, exit=False, **self.kwargs
+                )
             except SystemExit as e:
                 self._exit_code = e.code
             return self.stdout.getvalue(), self.stderr.getvalue()
@@ -241,7 +236,8 @@ class NotReallyAProc(object):
         # subprocess.poll should return None or the Integer exitcode
         return int(not self.result.result.wasSuccessful())
 
-class RedirectStdStreams(object):
+
+class RedirectStdStreams:
 
     """
     Context manager that replaces the stdin/stdout streams with :class:`StringIO`
@@ -249,8 +245,8 @@ class RedirectStdStreams(object):
     """
 
     def __init__(self):
-        self.stdout = six.StringIO()
-        self.stderr = six.StringIO()
+        self.stdout = io.StringIO()
+        self.stderr = io.StringIO()
 
     def __enter__(self):
         self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
@@ -266,9 +262,8 @@ class RedirectStdStreams(object):
         sys.stderr = self.old_stderr
 
 
-# mock multprocessing Connection
-class Conn(object):
-
+# mock multiprocessing Connection
+class Conn:
     def __init__(self, items):
         self.items = items
         self.sent = []
@@ -279,7 +274,7 @@ class Conn(object):
             raise EOFError("closed")
         try:
             return self.items.pop(0)
-        except:
+        except Exception:
             raise EOFError("EOF")
 
     def send(self, item):
@@ -287,3 +282,22 @@ class Conn(object):
 
     def close(self):
         self.closed = True
+
+
+# true on GitHub Actions, false otherwise
+def environment_is_ci():
+    return os.getenv("CI") == "true"
+
+
+# special skip decorator for tests which are broken in Windows in CI
+def windows_ci_skip(f):
+    return unittest.skipIf(
+        platform.system() == "Windows" and environment_is_ci(),
+        "This test is skipped on Windows in CI",
+    )(f)
+
+
+def _method_name(name="test"):
+    """Get an extra method name for Python 3.11"""
+    # https://github.com/python/cpython/issues/58473
+    return r"\." + name if sys.version_info >= (3, 11) else ""

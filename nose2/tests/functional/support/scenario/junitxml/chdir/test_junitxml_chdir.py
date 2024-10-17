@@ -5,14 +5,13 @@ import unittest
 
 
 class Test(unittest.TestCase):
-
     def setUp(self):
-        super(Test, self).setUp()
+        super().setUp()
 
         self.temp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
-        super(Test, self).tearDown()
+        super().tearDown()
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 

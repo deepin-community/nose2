@@ -1,22 +1,17 @@
+import argparse
 import logging
 import os
 
-import argparse
 # py2/py3 compatible load of SafeConfigParser/ConfigParser
-import sys
-if sys.version_info < (3, 2):
-    from ConfigParser import SafeConfigParser as ConfigParser
-else:
-    from configparser import ConfigParser
+from configparser import ConfigParser
 
 from nose2 import config, events, util
-
 
 log = logging.getLogger(__name__)
 __unittest = True
 
 
-class Session(object):
+class Session:
 
     """Configuration session.
 
@@ -76,13 +71,14 @@ class Session(object):
        The config section for nose2 itself.
 
     """
+
     configClass = config.Config
 
     def __init__(self):
-        self.argparse = argparse.ArgumentParser(prog='nose2', add_help=False)
+        self.argparse = argparse.ArgumentParser(prog="nose2", add_help=False)
         self.pluginargs = self.argparse.add_argument_group(
-            'plugin arguments',
-            'Command-line arguments added by plugins:')
+            "plugin arguments", "Command-line arguments added by plugins:"
+        )
         self.config = ConfigParser()
         self.hooks = events.PluginInterface()
         self.plugins = []
@@ -94,12 +90,12 @@ class Session(object):
         self.testResult = None
         self.testLoader = None
         self.logLevel = logging.WARN
-        self.configCache = dict()
+        self.configCache = {}
 
     def get(self, section):
         """Get a config section.
 
-        :param section: The section name to retreive.
+        :param section: The section name to retrieve.
         :returns: instance of self.configClass.
 
         """
@@ -138,13 +134,14 @@ class Session(object):
             exclude = []
         # plugins mentioned in config file(s)
         cfg = self.unittest
-        more_plugins = cfg.as_list('plugins', [])
-        cfg_exclude = cfg.as_list('exclude-plugins', [])
+        more_plugins = cfg.as_list("plugins", [])
+        cfg_exclude = cfg.as_list("exclude-plugins", [])
         exclude.extend(cfg_exclude)
         exclude = set(exclude)
         all_ = (set(modules) | set(more_plugins)) - exclude
+        all_ = sorted(all_)
         log.debug("Loading plugin modules: %s", all_)
-        for module in sorted(all_):
+        for module in all_:
             self.loadPluginsFromModule(util.module_from_name(module))
         self.hooks.pluginsLoaded(events.PluginsLoadedEvent(self.plugins))
 
@@ -156,20 +153,18 @@ class Session(object):
 
         """
         avail = []
-        for entry in dir(module):
-            try:
-                item = getattr(module, entry)
-            except AttributeError:
-                pass
-            try:
-                if issubclass(item, events.Plugin):
-                    avail.append(item)
-            except TypeError:
-                pass
+        for _, item in util.iter_attrs(module):
+            if not isinstance(item, type):
+                continue
+            if item == events.Plugin:
+                continue
+            if issubclass(item, events.Plugin):
+                avail.append(item)
         for cls in avail:
             log.debug("Plugin is available: %s", cls)
             plugin = cls(session=self)
-            self.plugins.append(plugin)
+            if plugin not in self.plugins:
+                self.plugins.append(plugin)
             for method in self.hooks.preRegistrationMethods:
                 if hasattr(plugin, method):
                     self.hooks.register(method, plugin)
@@ -201,7 +196,7 @@ class Session(object):
         start with config, override with any given --verbosity, then adjust
         up/down with -vvv -qq, etc
         """
-        self.verbosity = self.unittest.as_int('verbosity', 1)
+        self.verbosity = self.unittest.as_int("verbosity", 1)
         if args_verbosity is not None:
             self.verbosity = args_verbosity
         # adjust up or down, depending on the difference of these counts
@@ -213,7 +208,7 @@ class Session(object):
         """
         start dir comes from config and may be overridden by an argument
         """
-        self.startDir = self.unittest.as_str('start-dir', '.')
+        self.startDir = self.unittest.as_str("start-dir", ".")
         if args_start_dir is not None:
             self.startDir = args_start_dir
 
@@ -233,19 +228,19 @@ class Session(object):
     # convenience properties
     @property
     def libDirs(self):
-        return self.unittest.as_list('code-directories', ['lib', 'src'])
+        return self.unittest.as_list("code-directories", ["lib", "src"])
 
     @property
     def testFilePattern(self):
-        return self.unittest.as_str('test-file-pattern', 'test*.py')
+        return self.unittest.as_str("test-file-pattern", "test*.py")
 
     @property
     def testMethodPrefix(self):
-        return self.unittest.as_str('test-method-prefix', 'test')
+        return self.unittest.as_str("test-method-prefix", "test")
 
     @property
     def unittest(self):
-        return self.get('unittest')
+        return self.get("unittest")
 
     def isPluginLoaded(self, pluginName):
         """Returns ``True`` if a given plugin is loaded.

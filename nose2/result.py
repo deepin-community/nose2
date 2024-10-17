@@ -2,20 +2,20 @@ import time
 
 from nose2 import events
 
-
-ERROR = 'error'
-FAIL = 'failed'
-SKIP = 'skipped'
-PASS = 'passed'
+ERROR = "error"
+FAIL = "failed"
+SKIP = "skipped"
+PASS = "passed"
+SUBTEST = "subtest"
 __unittest = True
 
 
-class PluggableTestResult(object):
+class PluggableTestResult:
 
     """Test result that defers to plugins.
 
     All test outcome recording and reporting is deferred to plugins,
-    which are expected to implement :func:`startTest`, :func:`stopTest`, 
+    which are expected to implement :func:`startTest`, :func:`stopTest`,
     :func:`testOutcome`, and :func:`wasSuccessful`.
 
     :param session: Test run session.
@@ -29,6 +29,8 @@ class PluggableTestResult(object):
     def __init__(self, session):
         self.session = session
         self.shouldStop = False
+        # XXX TestCase.subTest expects a result.failfast attribute
+        self.failfast = False
 
     def startTest(self, test):
         """Start a test case.
@@ -48,6 +50,9 @@ class PluggableTestResult(object):
         event = events.StopTestEvent(test, self, time.time())
         self.session.hooks.stopTest(event)
 
+    def addDuration(self, test, elapsed):  # For Python >= 3.12
+        pass
+
     def addError(self, test, err):
         """Test case resulted in error.
 
@@ -65,6 +70,16 @@ class PluggableTestResult(object):
 
         """
         event = events.TestOutcomeEvent(test, self, FAIL, err)
+        self.session.hooks.setTestOutcome(event)
+        self.session.hooks.testOutcome(event)
+
+    def addSubTest(self, test, subtest, err):
+        """Called at the end of a subtest.
+
+        Fires :func:`setTestOutcome` and :func:`testOutcome` hooks.
+
+        """
+        event = events.TestOutcomeEvent(subtest, self, SUBTEST, err)
         self.session.hooks.setTestOutcome(event)
         self.session.hooks.testOutcome(event)
 
@@ -135,4 +150,4 @@ class PluggableTestResult(object):
         self.shouldStop = event.shouldStop
 
     def __repr__(self):
-        return '<%s>' % self.__class__.__name__
+        return "<%s>" % self.__class__.__name__

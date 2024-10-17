@@ -5,8 +5,10 @@ class TestFailAssert(unittest.TestCase):
     def test_failing_assert(self):
         x = True
         y = False
-        # flake8: noqa
+        # fmt: off
+        # ruff: noqa
         assert x; assert y
+        # fmt: on
 
     def test_failing_assert2(self):
         p = 1

@@ -24,7 +24,6 @@ override_dh_installman:
 		 --version-string=${DEB_VERSION} \
 		 --no-discard-stderr --no-info \
 		 debian/python3-nose2/usr/bin/nose2-3
-	cp debian/nose2-3.1 debian/nose2-3.8.1
 	dh_installman
 
 override_dh_auto_test:

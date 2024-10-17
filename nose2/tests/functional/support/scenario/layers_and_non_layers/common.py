@@ -1,23 +1,23 @@
-import unittest
 import logging
+import unittest
+
 log = logging.getLogger(__name__)
 
 
-class UniqueResource(object):
+class UniqueResource:
     _instance = None
     used = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(UniqueResource, cls).__new__(
-                cls, *args, **kwargs)
+            cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
     def lock(self):
         if not self.used:
             self.used = True
         else:
-            raise Exception("Resource allready used")
+            raise Exception("Resource already used")
 
     def unlock(self):
         if self.used:
@@ -27,7 +27,6 @@ class UniqueResource(object):
 
 
 class NormalTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         log.info("Called setUpClass in NormalTest")
@@ -44,7 +43,6 @@ class NormalTest(unittest.TestCase):
 
 
 class NormalTestTwo(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         log.info("Called setUpClass in NormalTestTwo")

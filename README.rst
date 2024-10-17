@@ -1,14 +1,22 @@
-.. image:: https://travis-ci.org/nose-devs/nose2.svg?branch=master
-    :target: https://travis-ci.org/nose-devs/nose2
-    :alt: Build Status
+.. image:: https://results.pre-commit.ci/badge/github/nose-devs/nose2/main.svg
+   :target: https://results.pre-commit.ci/latest/github/nose-devs/nose2/main
+   :alt: pre-commit.ci status
 
-.. image:: https://coveralls.io/repos/github/nose-devs/nose2/badge.svg?branch=master
-    :target: https://coveralls.io/github/nose-devs/nose2?branch=master
-    :alt: Coverage Status
+.. image:: https://github.com/nose-devs/nose2/workflows/build/badge.svg?event=push
+    :alt: build status
+    :target: https://github.com/nose-devs/nose2/actions?query=workflow%3Abuild
+
+.. image:: https://readthedocs.org/projects/nose2/badge/
+    :target: https://nose2.io/
+    :alt: Documentation
 
 .. image:: https://img.shields.io/pypi/v/nose2.svg
     :target: https://pypi.org/project/nose2/
     :alt: Latest PyPI version
+
+.. image:: https://img.shields.io/pypi/pyversions/nose2.svg
+    :alt: Supported Python Versions
+    :target: https://pypi.org/project/nose2/
 
 .. image:: https://img.shields.io/badge/Mailing%20list-discuss%40nose2.io-blue.svg
     :target: https://groups.google.com/a/nose2.io/forum/#!forum/discuss
@@ -17,23 +25,23 @@
 Welcome to nose2
 ================
 
-``nose2`` is the successor to ``nose``.
+nose2's extends ``unittest`` to make testing nicer.
 
-It's ``unittest`` with plugins.
+nose2 vs nose
+-------------
 
-``nose2`` is a new project and does not support all of the features of
-``nose``. See `differences`_ for a thorough rundown.
+``nose2`` originated as the successor to ``nose``.
 
-nose2's purpose is to extend ``unittest`` to make testing nicer and easier to
-understand.
+``nose2`` is a distinct project and does not support all of the behaviors of ``nose``.
+See `differences`_ for a thorough rundown.
 
 nose2 vs pytest
 ---------------
 
-``nose2`` may or may not be a good fit for your project.
+`pytest`_ is an excellent test framework and we encourage users to consider
+it for new projects.
 
-If you are new to python testing, we encourage you to also consider `pytest`_,
-a popular testing framework.
+It has a bigger team of maintainers and a larger community of users.
 
 Quickstart
 ----------
@@ -42,7 +50,7 @@ Because ``nose2`` is based on unittest, you can start from the Python Standard
 Library's `documentation for unittest <https://docs.python.org/library/unittest.html>`_
 and then use nose2 to add value on top of that.
 
-``nose2`` looks for tests in python files whose names start with ``test`` and
+``nose2`` looks for tests in Python files whose names start with ``test`` and
 runs every test function it discovers.
 
 Here's an example of a simple test, written in typical unittest style:
@@ -128,15 +136,53 @@ Full Docs
 
 Full documentation for ``nose2`` is available at `docs.nose2.io`_
 
+Versions and Support
+--------------------
+
+Changelog and Version Scheme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+nose2 versions are numbered ``0.MAJOR.MINOR``. Minor releases contain bugfixes or
+smaller features. Major features or backwards incompatible changes are done in
+major releases.
+
+For a full description of all past versions and changes, see the `changelog`_.
+
+Python Versions
+~~~~~~~~~~~~~~~
+
+nose2 requires Python 3.
+
+It supports all versions currently supported by the CPython team, and also aims
+to support PyPy and cpython betas.
+
+Python 2
+********
+
+Python 2 is no longer supported. The `0.12.x line of releases <py2line>`_
+contains the last versions which supported Python 2.
+
+Users of Python 2 should understand that Python 2 is EOL and the Python 2
+support line for ``nose2`` is similarly considered EOL.
+
+.. note::
+
+    Fixes to 0.12.x may still be accepted on an as-needed basis for a short
+    while as the python3-only line of releases gets started.
+
 Contributing
 ------------
 
 If you want to make contributions, please read the `contributing`_ guide.
 
-.. _differences: https://nose2.readthedocs.io/en/latest/differences.html
+.. _py2line: https://github.com/nose-devs/nose2/tree/0.12.x-line
+
+.. _differences: https://docs.nose2.io/en/latest/differences.html
+
+.. _changelog: https://docs.nose2.io/en/latest/changelog.html
 
 .. _pytest: http://pytest.readthedocs.io/en/latest/
 
-.. _contributing: https://github.com/nose-devs/nose2/blob/master/contributing.rst
+.. _contributing: https://github.com/nose-devs/nose2/blob/main/contributing.rst
 
 .. _docs.nose2.io: https://docs.nose2.io/en/latest/

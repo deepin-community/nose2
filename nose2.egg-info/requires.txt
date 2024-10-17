@@ -1,13 +1,8 @@
-six>=1.7
-coverage>=4.4.1
-
-[:python_version < "3.6"]
-mock==2.0.0
 
 [coverage_plugin]
-coverage>=4.4.1
+coverage
 
-[doc]
-Sphinx>=1.6.5
+[dev]
+Sphinx
+sphinx-issues
 sphinx_rtd_theme
-mock
